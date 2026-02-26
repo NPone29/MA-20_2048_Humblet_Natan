@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus visible du jeu
 # author : Natan Humblet
 # Date : 26/02/2026
-# Version : 1.0
+# Version : 1.1
 
 # Importation des modules nécessaires
 from tkinter import *
@@ -22,9 +22,12 @@ def touche_pressee(event):
         print("Flèche de droite pressée !")
 
 list_frame = []
+list_label = []
 
 # Fonction pour démarrer le jeu
 def start_game():
+    global grid
+
     gap = 20 # space between labels
     x0=45 # horizontal beginning of labels
     y0=50 # vertical beginning of labels
@@ -35,33 +38,49 @@ def start_game():
     #grid = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, None, None, None]]
     print(grid)
 
+    list_frame.clear()
+    list_label.clear()
     for line in range(len(grid)):
+        row_frames = []
+        row_labels = []
         for col in range(len(grid[line])):
-
             number_exposant = core.get_number_exposant(grid[line][col])
-            color = core.number[number_exposant]["color"] if number_exposant is not None else "#C5A0A0"
+            color = core.color[number_exposant]["color"] if number_exposant is not None else "#C5A0A0"
 
             number_frame = Frame(main_frame, width=10, height=5, borderwidth=1, relief="solid", bg=color)
             number_frame.place(x=x0 + (width + gap) * col, y=y0 + (height + gap) * line, width=width, height=height)
-            # creation without placement
             number = grid[line][col]
-            grid[line][col] = Label (number_frame, text=number, font=("Arial", 24), bg=color)
-            # label positionning in the windows
+            temp_label = None
+            temp_label = Label(number_frame, text=number, font=("Arial", 24), bg=color)
             try:
-                if int(number) < 10:
-                    grid[line][col].place(relx=0.4, rely=0.3)
+                if number is not None and int(number) < 10:
+                    temp_label.place(relx=0.4, rely=0.3)
                 else:
-                    grid[line][col].place(relx=0.5, rely=0.5, anchor="center")
-                list_frame.append(number_frame)
+                    temp_label.place(relx=0.5, rely=0.5, anchor="center")
             except:
-                pass
+                temp_label.place(relx=0.5, rely=0.5, anchor="center")
+            row_frames.append(number_frame)
+            row_labels.append(temp_label)
+        list_frame.append(row_frames)
+        list_label.append(row_labels)
 
 # Fonction pour redémarrer le jeu
 def restart_game():
-    for frame in list_frame:
-        frame.destroy()
+    for line in range(len(list_frame)):
+        for col in range(len(list_frame[line])):
+            list_frame[line][col].destroy()
     list_frame.clear()
+    list_label.clear()
     start_game()
+
+# Fonction pour recharger l'affichage
+def reload_display(grid):
+    for line in range(len(grid)):
+        for col in range(len(grid[line])):
+            color = core.color[core.get_number_exposant(grid[line][col])]["color"] if core.get_number_exposant(grid[line][col]) is not None else "#C5A0A0"
+            list_frame[line][col].config(bg=color)
+            grid_number = grid[line][col]
+            list_label[line][col].config(text=grid_number)
 
 root = Tk()
 root.title("2048 Game")

@@ -1,14 +1,14 @@
 # Function : Script qui gère tout les processus invisible du jeu
 # author : Natan Humblet
 # Date : 26/02/2026
-# Version : 1.0
+# Version : 1.1
 
 # Importation des modules nécessaires
 import random
 import math
 
 # Dictionnaire avec toutes les couleurs des nombres
-number = {
+color = {
     1:{ "color": "#CAE2A8"},
     2: { "color": "#A9FC56"},
     3: { "color": "#61FA6C"},
