@@ -71,17 +71,6 @@ def start_game():
         list_frame.append(row_frames)
         list_label.append(row_labels)
 
-# Fonction pour redémarrer le jeu
-def restart_game():
-    for line in range(len(list_frame)):
-        for col in range(len(list_frame[line])):
-            # Détruit les frames
-            list_frame[line][col].destroy()
-    # On clear les listes qui contient les frame et label
-    list_frame.clear()
-    list_label.clear()
-    # On redémarre une partie
-    start_game()
 
 # Fonction pour recharger l'affichage
 def reload_display(grid):
@@ -113,7 +102,7 @@ label_score = Label(menu_frame, text=f"Score: 0", font=("Helvetica", 14), bg="#4
 label_score.place(relx=0.66, rely=0.2)
 
 button_restart = Button(menu_frame, text="Restart", font=("Helvetica", 12), 
-                        bg="deep sky blue", activebackground="dodger blue", command=restart_game)
+                        bg="deep sky blue", activebackground="dodger blue")
 button_restart.place(relx=0.5, rely=0.9, anchor="s")
 
 # Chargement de l'image de fond (ciel étoilé)
