@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus visible du jeu
 # author : Natan Humblet
 # Date : 26/02/2026
-# Version : 1.1
+# Version : 1.2 DEV
 
 # Importation des modules nécessaires
 from tkinter import *
@@ -12,14 +12,28 @@ import core
 
 # Fonction pour gérer les touches pressées
 def touche_pressee(event):
+    global grid
+
     if event.keysym == "Up" or event.keysym == "w":
         print("Flèche du haut pressée !")
+        grid = core.move.move_top(grid)
+        grid = core.spawn_new_case(grid, 4, 4)
+        reload_display(grid)
     elif event.keysym == "Down" or event.keysym == "s":
         print("Flèche du bas pressée !")
+        grid = core.move.move_down(grid)
+        grid = core.spawn_new_case(grid, 4, 4)
+        reload_display(grid)
     elif event.keysym == "Left" or event.keysym == "a":
         print("Flèche de gauche pressée !")
+        grid = core.move.move_left(grid)
+        #grid = core.spawn_new_case(grid, 4, 4)
+        reload_display(grid)
     elif event.keysym == "Right" or event.keysym == "d":
         print("Flèche de droite pressée !")
+        grid = core.move.move_right(grid)
+        grid = core.spawn_new_case(grid, 4, 4)
+        reload_display(grid)
 
 list_frame = []
 list_label = []
@@ -35,7 +49,7 @@ def start_game():
     height=100 # vertical distance between labels
 
     grid = core.create_grid(4, 4)
-    #grid = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, None, None, None]]
+    #grid = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 0, 0, 0]]
     print(grid)
 
     list_frame.clear()
@@ -44,21 +58,18 @@ def start_game():
         row_frames = []
         row_labels = []
         for col in range(len(grid[line])):
-            number_exposant = core.get_number_exposant(grid[line][col])
-            color = core.color[number_exposant]["color"] if number_exposant is not None else "#C5A0A0"
+            value = grid[line][col]
+            color = core.color[value]["color"]
 
             number_frame = Frame(main_frame, width=10, height=5, borderwidth=1, relief="solid", bg=color)
             number_frame.place(x=x0 + (width + gap) * col, y=y0 + (height + gap) * line, width=width, height=height)
             number = grid[line][col]
-            temp_label = None
-            temp_label = Label(number_frame, text=number, font=("Arial", 24), bg=color)
-            try:
-                if number is not None and int(number) < 10:
-                    temp_label.place(relx=0.4, rely=0.3)
-                else:
-                    temp_label.place(relx=0.5, rely=0.5, anchor="center")
-            except:
-                temp_label.place(relx=0.5, rely=0.5, anchor="center")
+            if number == 0:
+                number = None
+
+            temp_label = Label(number_frame, text=number, font=("Arial", 24), bg=color)    
+            temp_label.place(relx=0.5, rely=0.5, anchor="center")
+           
             row_frames.append(number_frame)
             row_labels.append(temp_label)
         list_frame.append(row_frames)
@@ -77,14 +88,21 @@ def restart_game():
 def reload_display(grid):
     for line in range(len(grid)):
         for col in range(len(grid[line])):
-            color = core.color[core.get_number_exposant(grid[line][col])]["color"] if core.get_number_exposant(grid[line][col]) is not None else "#C5A0A0"
+            color = core.color[grid[line][col]]["color"]
             list_frame[line][col].config(bg=color)
             grid_number = grid[line][col]
-            list_label[line][col].config(text=grid_number)
+
+            if grid_number == 0:
+                grid_number = ""
+            list_label[line][col].config(text=grid_number, bg=color)
+            list_label[line][col].place(relx=0.5, rely=0.5, anchor="center")
+
+    label_score.config(text=f"Score: {core.score}")
 
 root = Tk()
 root.title("2048 Game")
 root.geometry("550x650")
+root.resizable(width=0,height=0)
 
 menu_frame = Frame(root, height=100, bg="#493F66")
 menu_frame.pack(side=TOP, fill=X)
@@ -92,7 +110,7 @@ menu_frame.pack(side=TOP, fill=X)
 label_2048 = Label(menu_frame, text="2048 Game", font=("Helvetica", 24), bg="#493F66", fg="white")
 label_2048.place(relx=0.05, rely=0.1)
 
-label_score = Label(menu_frame, text="Score: 0", font=("Helvetica", 14), bg="#493F66", fg="white")
+label_score = Label(menu_frame, text=f"Score: {core.score}", font=("Helvetica", 14), bg="#493F66", fg="white")
 label_score.place(relx=0.66, rely=0.2)
 
 button_restart = Button(menu_frame, text="Restart", font=("Helvetica", 12), 
