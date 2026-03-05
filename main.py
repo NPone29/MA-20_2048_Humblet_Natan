@@ -1,7 +1,7 @@
 # Function : Script qui démarre le jeu
 # author : Natan Humblet
-# Date : 26/02/2026
-# Version : 1.1
+# Date : 05/03/2026
+# Version : 1.2 MAIN
 
 # Importation des modules nécessaires
 import gfx
