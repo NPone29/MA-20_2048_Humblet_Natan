@@ -27,7 +27,7 @@ def touche_pressee(event):
     elif event.keysym == "Left" or event.keysym == "a":
         print("Flèche de gauche pressée !")
         grid = core.move.move_left(grid)
-        #grid = core.spawn_new_case(grid, 4, 4)
+        grid = core.spawn_new_case(grid, 4, 4)
         reload_display(grid)
     elif event.keysym == "Right" or event.keysym == "d":
         print("Flèche de droite pressée !")

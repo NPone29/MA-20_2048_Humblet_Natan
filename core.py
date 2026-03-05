@@ -99,7 +99,8 @@ class move:
 
     def move_left(grid):
         for column in range(len(grid)):
-            grid[column] = pack4(grid[column][0], grid[column][1], grid[column][2], grid[column][3])
+            temp = pack4(grid[column][0], grid[column][1], grid[column][2], grid[column][3])
+            grid[column] = [temp[0], temp[1], temp[2], temp[3]]
         return grid
     
     def move_right(grid):
