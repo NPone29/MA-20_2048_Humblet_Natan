@@ -17,22 +17,18 @@ def touche_pressee(event):
     if event.keysym == "Up" or event.keysym == "w":
         print("Flèche du haut pressée !")
         grid = core.move.move_top(grid)
-        grid = core.spawn_new_case(grid, 4, 4)
         reload_display(grid)
     elif event.keysym == "Down" or event.keysym == "s":
         print("Flèche du bas pressée !")
         grid = core.move.move_down(grid)
-        grid = core.spawn_new_case(grid, 4, 4)
         reload_display(grid)
     elif event.keysym == "Left" or event.keysym == "a":
         print("Flèche de gauche pressée !")
         grid = core.move.move_left(grid)
-        grid = core.spawn_new_case(grid, 4, 4)
         reload_display(grid)
     elif event.keysym == "Right" or event.keysym == "d":
         print("Flèche de droite pressée !")
         grid = core.move.move_right(grid)
-        grid = core.spawn_new_case(grid, 4, 4)
         reload_display(grid)
 
 list_frame = []
