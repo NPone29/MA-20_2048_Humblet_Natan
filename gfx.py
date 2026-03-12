@@ -1,10 +1,11 @@
 # Function : Script qui gère tout les processus visible du jeu
 # author : Natan Humblet
-# Date : 26/02/2026
-# Version : 1.2 DEV
+# Date : 12/03/2026
+# Version : 1.3 DEV
 
 # Importation des modules nécessaires
 from tkinter import *
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
 import sys
@@ -18,18 +19,42 @@ def touche_pressee(event):
         print("Flèche du haut pressée !")
         grid = core.move.move_top(grid)
         reload_display(grid)
+
     elif event.keysym == "Down" or event.keysym == "s":
         print("Flèche du bas pressée !")
         grid = core.move.move_down(grid)
         reload_display(grid)
+
     elif event.keysym == "Left" or event.keysym == "a":
         print("Flèche de gauche pressée !")
         grid = core.move.move_left(grid)
         reload_display(grid)
+
     elif event.keysym == "Right" or event.keysym == "d":
         print("Flèche de droite pressée !")
         grid = core.move.move_right(grid)
         reload_display(grid)
+    else:
+        return
+    
+    if core.is_win(grid) and not core.win:
+        core.win = True
+        root.unbind("<KeyPress>")
+        end_frame.place(relx=0.5, rely=0.58, anchor="center")
+        end_label.place(relx=0.5, rely=0.5, anchor="center")
+        end_label.config(text="You Won!")
+        button_continue.place(relx=0.5, rely=0.8, anchor="center")
+
+    if core.is_game_over(grid):
+        core.save_best_score()
+        root.unbind("<KeyPress>")
+        end_frame.place(relx=0.5, rely=0.58, anchor="center")
+        end_label.place(relx=0.5, rely=0.5, anchor="center")
+        end_label.config(text="Game Over")
+
+def continue_game():
+    end_frame.place_forget()
+    root.bind("<KeyPress>", touche_pressee)
 
 list_frame = []
 list_label = []
@@ -73,11 +98,22 @@ def start_game():
 
 # Fonction pour redémarrer le jeu
 def restart_game():
+
+    end_frame.place_forget()
+    button_continue.place_forget()
+    core.save_best_score()
+    best_score = core.get_best_score()
+    core.score = 0
+
+    label_score.config(text=f"Score: {core.score}")
+    label_score_max.config(text=f"Best score: {best_score}")
+
     for line in range(len(list_frame)):
         for col in range(len(list_frame[line])):
             list_frame[line][col].destroy()
     list_frame.clear()
     list_label.clear()
+    root.bind("<KeyPress>", touche_pressee)
     start_game()
 
 # Fonction pour recharger l'affichage
@@ -109,6 +145,11 @@ label_2048.place(relx=0.05, rely=0.1)
 label_score = Label(menu_frame, text=f"Score: {core.score}", font=("Helvetica", 14), bg="#493F66", fg="white")
 label_score.place(relx=0.66, rely=0.2)
 
+bestscore = core.get_best_score()
+
+label_score_max = Label(menu_frame, text=f"Best score: {bestscore}", font=("Helvetica", 14), bg="#493F66", fg="white")
+label_score_max.place(relx=0.66, rely=0.45)
+
 button_restart = Button(menu_frame, text="Restart", font=("Helvetica", 12), 
                         bg="deep sky blue", activebackground="dodger blue", command=restart_game)
 button_restart.place(relx=0.5, rely=0.9, anchor="s")
@@ -136,6 +177,11 @@ canvas.place(relx=0, rely=0, relwidth=1, relheight=1)
 # Attribuer l'image de fond à la Frame
 canvas.create_image(0, 0, image=bg, anchor="nw")
 main_frame._bg_image = bg
+
+end_frame = Frame(root, height=150, width=600, bg="white")
+end_label = Label(end_frame, text="", font=("Helvetica", 24), bg="white", fg="black")
+
+button_continue = Button(end_frame, text="Continue", font=("Helvetica", 12), bg="light green", command=continue_game)
 
 start_game()
 

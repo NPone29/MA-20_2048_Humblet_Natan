@@ -1,11 +1,11 @@
 # Function : Script qui gère tout les processus invisible du jeu
 # author : Natan Humblet
-# Date : 26/02/2026
-# Version : 1.2 DEV
+# Date : 12/03/2026
+# Version : 1.3 DEV
 
 # Importation des modules nécessaires
 import random
-import math
+import json
 
 # Dictionnaire avec toutes les couleurs des nombres
 color = {
@@ -26,19 +26,20 @@ color = {
 }
 
 score = 0
+win = False
 
 def spawn_new_case(grid, long, larg):
         
-    empty_case = False
-    for line in range(long):
-        for col in range(larg):
-            if grid[line][col] == 0:
-                empty_case=True
+    #empty_case = False
+    #for line in range(long):
+    #    for col in range(larg):
+    #        if grid[line][col] == 0:
+    #            empty_case=True
+#
+    #    if not empty_case:
+    #        return grid
 
-        if not empty_case:
-            return grid
-
-        if random.random() < 0.1:
+        if random.random() < 0.2:
             number = 4
         else:
             number = 2
@@ -66,6 +67,38 @@ def create_grid(long,larg):
         grid = spawn_new_case(grid, long, larg)
 
     return grid
+
+def is_game_over(grid):
+
+    for column in grid:
+        for case in column:
+            if case == 0:
+                return False
+    
+    for i in range(4):
+
+        temp_grid = [list(row) for row in grid]
+
+        if i == 0:
+            temp_grid = move.move_left(temp_grid)
+        elif i == 1:
+            temp_grid = move.move_right(temp_grid)
+        elif i == 2:
+            temp_grid = move.move_top(temp_grid)
+        elif i == 3: 
+            temp_grid = move.move_down(temp_grid)
+
+        if grid != temp_grid:
+            return False
+        
+    return True
+
+def is_win(grid):
+    for column in grid:
+        for case in column:
+            if case == 2048:
+                return True
+    return False
 
 def pack4(a, b, c, d):
     global score
@@ -176,7 +209,21 @@ class move:
             for row, val in enumerate([d, c, b, a]):
                 new_grid[row][column] = val
         if move_flag:
-            spawn_new_case(new_grid, 4, 4)
+            spawn_new_case(new_grid, 4, 4)        
         return new_grid
+
+def save_best_score():
+        with open("data.json", "r") as f:
+            data = json.load(f)
+        if score > data["bestscore"]:
+            data["bestscore"] = score
+        with open("data.json", "w") as f:
+            json.dump(data, f)
+
+
+def get_best_score():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    return data["bestscore"]
 
 #print(move.move_down([[2, 0, 2, 0], [4, 4, 4, 0], [0, 2, 2, 4], [2, 2, 0, 2]]))
