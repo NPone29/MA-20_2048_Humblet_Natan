@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus visible du jeu
 # author : Natan Humblet
-# Date : 12/03/2026
-# Version : 1.3 DEV
+# Date : 19/03/2026
+# Version : 1.4 DEV
 
 # Importation des modules nécessaires
 from tkinter import *
@@ -38,7 +38,7 @@ def touche_pressee(event):
         return
     
     if core.is_win(grid) and not core.win:
-        core.win = True
+        core.save_win()
         root.unbind("<KeyPress>")
         end_frame.place(relx=0.5, rely=0.58, anchor="center")
         end_label.place(relx=0.5, rely=0.5, anchor="center")
@@ -47,10 +47,12 @@ def touche_pressee(event):
 
     if core.is_game_over(grid):
         core.save_best_score()
+        core.reset_win()
         root.unbind("<KeyPress>")
         end_frame.place(relx=0.5, rely=0.58, anchor="center")
         end_label.place(relx=0.5, rely=0.5, anchor="center")
         end_label.config(text="Game Over")
+        button_showgame.place(relx=0.5, rely=0.8, anchor="center")
 
 def continue_game():
     end_frame.place_forget()
@@ -69,7 +71,11 @@ def start_game():
     width=100 # horizontal distance between labels
     height=100 # vertical distance between labels
 
-    grid = core.create_grid(4, 4)
+    last_played_grid = core.getgrid()
+    if not last_played_grid:
+        grid = core.create_grid(4, 4)
+    else:
+        grid = last_played_grid
     #grid = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 0, 0, 0]]
     print(grid)
 
@@ -101,9 +107,12 @@ def restart_game():
 
     end_frame.place_forget()
     button_continue.place_forget()
+    button_showgame.place_forget()
     core.save_best_score()
     best_score = core.get_best_score()
     core.score = 0
+    core.deletegrid()
+    core.reset_win()
 
     label_score.config(text=f"Score: {core.score}")
     label_score_max.config(text=f"Best score: {best_score}")
@@ -130,6 +139,19 @@ def reload_display(grid):
             list_label[line][col].place(relx=0.5, rely=0.5, anchor="center")
 
     label_score.config(text=f"Score: {core.score}")
+
+def on_close():
+    core.save_best_score()
+    response = messagebox.askyesnocancel("Save your game?", "Do you want to save your game?")
+    if response == True:
+        core.save_game(grid, core.score)
+        root.destroy()
+    elif response == False:
+        core.deletegrid()
+        core.reset_win()
+        root.destroy()
+    else:
+        pass
 
 root = Tk()
 root.title("2048 Game")
@@ -182,8 +204,10 @@ end_frame = Frame(root, height=150, width=600, bg="white")
 end_label = Label(end_frame, text="", font=("Helvetica", 24), bg="white", fg="black")
 
 button_continue = Button(end_frame, text="Continue", font=("Helvetica", 12), bg="light green", command=continue_game)
+button_showgame = Button(end_frame, text="Show Game", font=("Helvetica", 12), bg="light blue", command=lambda: end_frame.place_forget())
 
 start_game()
 
 root.bind("<KeyPress>", touche_pressee)
+root.protocol("WM_DELETE_WINDOW", on_close)
 root.mainloop()

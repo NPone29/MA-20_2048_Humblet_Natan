@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus invisible du jeu
 # author : Natan Humblet
-# Date : 12/03/2026
-# Version : 1.3 DEV
+# Date : 19/03/2026
+# Version : 1.4 DEV
 
 # Importation des modules nécessaires
 import random
@@ -24,9 +24,6 @@ color = {
     4096: { "color": "#FFE93F"},
     8192: { "color": "#FFFFFF"}
 }
-
-score = 0
-win = False
 
 def spawn_new_case(grid, long, larg):
         
@@ -80,13 +77,13 @@ def is_game_over(grid):
         temp_grid = [list(row) for row in grid]
 
         if i == 0:
-            temp_grid = move.move_left(temp_grid)
+            temp_grid = move.move_left(temp_grid, False)
         elif i == 1:
-            temp_grid = move.move_right(temp_grid)
+            temp_grid = move.move_right(temp_grid, False)
         elif i == 2:
-            temp_grid = move.move_top(temp_grid)
+            temp_grid = move.move_top(temp_grid, False)
         elif i == 3: 
-            temp_grid = move.move_down(temp_grid)
+            temp_grid = move.move_down(temp_grid, False)
 
         if grid != temp_grid:
             return False
@@ -96,11 +93,11 @@ def is_game_over(grid):
 def is_win(grid):
     for column in grid:
         for case in column:
-            if case == 2048:
+            if case >= 2048:
                 return True
     return False
 
-def pack4(a, b, c, d):
+def pack4(a, b, c, d, calculate_score=True):
     global score
 
     move = False
@@ -128,7 +125,8 @@ def pack4(a, b, c, d):
 
         if a != 0:
             move = True
-        score += a
+        if calculate_score:
+            score += a
     if b == c:
         b = b * 2
         c = d
@@ -136,8 +134,8 @@ def pack4(a, b, c, d):
 
         if b != 0:
             move = True
-
-        score += b
+        if calculate_score:
+            score += b
     if c == d:
         c = c * 2
         d = 0
@@ -145,18 +143,19 @@ def pack4(a, b, c, d):
         if c != 0:
             move = True
 
-        score += c
+        if calculate_score:
+            score += c
 
     return(a, b, c, d, move)
 
 class move:
 
-    def move_left(grid):
+    def move_left(grid, calculate_score=True):
 
         moved = False
 
         for column in range(len(grid)):
-            a, b, c, d, move = pack4(grid[column][0], grid[column][1], grid[column][2], grid[column][3])
+            a, b, c, d, move = pack4(grid[column][0], grid[column][1], grid[column][2], grid[column][3], calculate_score=calculate_score)
             grid[column] = [a, b, c, d]
             if move:
                 moved = True
@@ -164,13 +163,13 @@ class move:
         if moved:
             spawn_new_case(grid, 4, 4)
         return grid
-    
-    def move_right(grid):
+
+    def move_right(grid, calculate_score=True):
 
         moved = False
 
         for column in range(len(grid)):
-            a, b, c, d, move = pack4(grid[column][3], grid[column][2], grid[column][1], grid[column][0])
+            a, b, c, d, move = pack4(grid[column][3], grid[column][2], grid[column][1], grid[column][0], calculate_score=calculate_score)
             grid[column] = [d, c, b, a]
 
             if move:
@@ -178,15 +177,15 @@ class move:
         if moved:
             spawn_new_case(grid, 4, 4)
         return grid
-    
-    def move_top(grid):
+
+    def move_top(grid, calculate_score=True):
         move_flag = False
         new_grid = [list(row) for row in grid]
         for column in range(0, 4):
             liste_number = []
             for row in range(len(grid)):
                 liste_number.append(grid[row][column])
-            a, b, c, d, moved = pack4(liste_number[0], liste_number[1], liste_number[2], liste_number[3])
+            a, b, c, d, moved = pack4(liste_number[0], liste_number[1], liste_number[2], liste_number[3], calculate_score=calculate_score)
             if moved:
                 move_flag = True
             for row, val in enumerate([a, b, c, d]):
@@ -194,15 +193,15 @@ class move:
         if move_flag:
             spawn_new_case(new_grid, 4, 4)
         return new_grid
-            
-    def move_down(grid):
+
+    def move_down(grid, calculate_score=True):
         move_flag = False
         new_grid = [list(row) for row in grid]
         for column in range(0, 4):
             liste_number = []
             for row in range(len(grid)):
                 liste_number.append(grid[row][column])
-            a, b, c, d, moved = pack4(liste_number[3], liste_number[2], liste_number[1], liste_number[0])
+            a, b, c, d, moved = pack4(liste_number[3], liste_number[2], liste_number[1], liste_number[0], calculate_score=calculate_score)
             if moved:
                 move_flag = True
             # Remettre dans l'ordre (de haut à en bas)
@@ -225,5 +224,55 @@ def get_best_score():
     with open("data.json", "r") as f:
         data = json.load(f)
     return data["bestscore"]
+
+def save_game(grid, score):
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    data["grid"] = grid
+    data["score"] = score
+    with open("data.json", "w") as f:
+        json.dump(data, f)
+
+def getgrid():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    return data.get("grid", None)
+
+def getscore():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    return data.get("score", 0)
+
+
+def deletegrid():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    if "grid" in data:
+        del data["grid"]
+    if "score" in data:
+        del data["score"]
+    with open("data.json", "w") as f:
+        json.dump(data, f)
+
+def save_win():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    data["win"] = True
+    with open("data.json", "w") as f:
+        json.dump(data, f)
+
+def get_win():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    return data.get("win", False)
+
+def reset_win():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    data["win"] = False
+    with open("data.json", "w") as f:
+        json.dump(data, f)
+win = get_win()
+score = getscore()
 
 #print(move.move_down([[2, 0, 2, 0], [4, 4, 4, 0], [0, 2, 2, 4], [2, 2, 0, 2]]))
