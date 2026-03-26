@@ -1,11 +1,12 @@
 # Function : Script qui gère tout les processus invisible du jeu
 # author : Natan Humblet
 # Date : 26/03/2026
-# Version : 1.5 DEV
+# Version : 1.6 DEV
 
 # Importation des modules nécessaires
 import random
 import json
+import time
 
 # Dictionnaire avec toutes les couleurs des nombres
 color = {
@@ -26,30 +27,21 @@ color = {
 }
 
 def spawn_new_case(grid, long, larg):
-        
-    #empty_case = False
-    #for line in range(long):
-    #    for col in range(larg):
-    #        if grid[line][col] == 0:
-    #            empty_case=True
-#
-    #    if not empty_case:
-    #        return grid
 
-        if random.random() < 0.2:
-            number = 4
-        else:
-            number = 2
+    if random.random() < 0.2:
+        number = 4
+    else:
+        number = 2
 
-        while True:
-            x = random.randint(0, long-1)
-            y = random.randint(0, larg-1)
+    while True:
+        x = random.randint(0, long-1)
+        y = random.randint(0, larg-1)
 
-            if grid[x][y] == 0:
-                grid[x][y] = number
-                break
+        if grid[x][y] == 0:
+            grid[x][y] = number
+            break
 
-        return grid
+    return grid
 
 # Fonction pour créer la grille avec les cases vides et les nombres
 def create_grid(long,larg):
@@ -358,9 +350,36 @@ def save_best_streak(streak):
     with open("data.json", "w") as f:
         json.dump(data, f)
 
+def get_game_mode():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    return data.get("game_mode", "classic")
+
+def get_timeattack_duration():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    return data.get("timeattack_duration", 120)
+
 win = get_win()
 score = getscore()
 streak = get_streak()
 best_streak = get_best_streak()
+game_mode = get_game_mode()
+
+time_remain = 0
+
+def start_timer(seconds):
+    global time_remain
+    time_remain = seconds
+
+def get_time_remaining():
+    global time_remain
+    return time_remain  # en secondes
+
+def get_time_remaining_str():
+    global time_remain
+    mins, secs = divmod(time_remain, 60)
+    return f"{mins:02d}:{secs:02d}"
+
 
 #print(move.move_down([[2, 0, 2, 0], [4, 4, 4, 0], [0, 2, 2, 4], [2, 2, 0, 2]]))

@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus visible du jeu
 # author : Natan Humblet
 # Date : 26/03/2026
-# Version : 1.5 DEV
+# Version : 1.6 DEV
 
 # Importation des modules nécessaires
 from tkinter import *
@@ -10,6 +10,7 @@ from PIL import Image, ImageTk
 import os
 import sys
 import core
+import time
 
 # Fonction pour gérer les touches pressées
 def touche_pressee(event):
@@ -65,6 +66,9 @@ list_label = []
 def start_game():
     global grid
 
+    gamemode = core.get_game_mode()
+
+
     gap = 20 # space between labels
     x0=45 # horizontal beginning of labels
     y0=50 # vertical beginning of labels
@@ -114,6 +118,9 @@ def start_game():
         list_frame.append(row_frames)
         list_label.append(row_labels)
 
+    if gamemode == "timeattack":
+        timeattack_start()
+
 # Fonction pour redémarrer le jeu
 def restart_game():
 
@@ -156,7 +163,6 @@ def reload_display(grid):
             if grid_number == 0:
                 grid_number = ""
             list_label[line][col].config(text=grid_number, bg=color)
-            list_label[line][col].place(relx=0.5, rely=0.5, anchor="center")
 
     label_score.config(text=f"Score: {core.score}")
     label_streak.config(text=f"Streak: {core.streak}")
@@ -176,6 +182,32 @@ def on_close():
         root.destroy()
     else:
         pass
+
+def open_settings():
+    root.destroy()
+    import settings
+
+def timeattack_start():
+    duration = core.get_timeattack_duration()
+    core.start_timer(duration)
+    frame_timeattack.pack(side=TOP, fill=X)
+    label_timeattack.place(relx=0.5, rely=0.5, anchor="center")
+    update_timeattack_label()
+
+def update_timeattack_label():
+    label_timeattack.config(text=f"Time left: {core.get_time_remaining_str()}")
+    elapsed_time = core.get_time_remaining()
+    if elapsed_time <= 0:
+        core.save_best_score()
+        core.reset_win()
+        root.unbind("<KeyPress>")
+        end_frame.place(relx=0.5, rely=0.58, anchor="center")
+        end_label.place(relx=0.5, rely=0.5, anchor="center")
+        end_label.config(text="GG, final score: " + str(core.score))
+        button_showgame.place(relx=0.5, rely=0.8, anchor="center")
+    else:
+        core.time_remain -= 1
+        root.after(1000, update_timeattack_label)
 
 root = Tk()
 root.title("2048 Game")
@@ -230,11 +262,21 @@ canvas.place(relx=0, rely=0, relwidth=1, relheight=1)
 canvas.create_image(0, 0, image=bg, anchor="nw")
 main_frame._bg_image = bg
 
+settings_img = Image.open(os.path.join(base, "assets/settings.png"))
+settings_img = settings_img.resize((20, 20), Image.LANCZOS)
+settings_photo = ImageTk.PhotoImage(settings_img)
+
+button_settings = Button(menu_frame, image=settings_photo, bg="light gray", command=open_settings)
+button_settings.place(relx=0.95, rely=0)
+
 end_frame = Frame(root, height=150, width=600, bg="white")
 end_label = Label(end_frame, text="", font=("Helvetica", 24), bg="white", fg="black")
 
 button_continue = Button(end_frame, text="Continue", font=("Helvetica", 12), bg="light green", command=continue_game)
 button_showgame = Button(end_frame, text="Show Game", font=("Helvetica", 12), bg="light blue", command=lambda: end_frame.place_forget())
+
+frame_timeattack = Frame(main_frame, height=45, bg="mediumpurple2")
+label_timeattack = Label(frame_timeattack, text=f"Time left: 0", font=("Helvetica", 14), bg="mediumpurple2", fg="white")
 
 start_game()
 

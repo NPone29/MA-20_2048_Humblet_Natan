@@ -1,7 +1,7 @@
 # Function : Script qui démarre le jeu
 # author : Natan Humblet
 # Date : 26/03/2026
-# Version : 1.5 DEV
+# Version : 1.6 DEV
 
 # Importation des modules nécessaires
 import json
@@ -10,7 +10,8 @@ import os
 data = {
     "best_score": 0,
     "win": False,
-    "best_streak": 0
+    "best_streak": 0,
+    "game_mode": "classic",  # "classic" ou "time_attack"
 }
 
 def ensure_settings(path="data.json"):
@@ -26,7 +27,9 @@ def ensure_settings(path="data.json"):
 
 
 # Démarrer le jeu
-if __name__ == "__main__":
-    ensure_settings()
+try:
+    if __name__ == "__main__":
+        ensure_settings()
     import gfx
-    gfx.run()
+except Exception as e:
+    print("The game closed successfully or crashed:", e)
