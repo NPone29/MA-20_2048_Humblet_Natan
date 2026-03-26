@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus invisible du jeu
 # author : Natan Humblet
-# Date : 19/03/2026
-# Version : 1.3 MAIN (branche main)
+# Date : 26/03/2026
+# Version : 1.3.1 MAIN (branche main)
 
 # Importation des modules nécessaires
 import random
@@ -31,23 +31,23 @@ win = False
 # Fonction pour faire apparaître une nouvelle case
 def spawn_new_case(grid, long, larg):
 
-        # 20% de chance d'avoir un 4 et 80 % un 2.
-        if random.random() < 0.2:
-            number = 4
-        else:
-            number = 2
+    # 20% de chance d'avoir un 4 et 80 % un 2.
+    if random.random() < 0.2:
+        number = 4
+    else:
+        number = 2
 
-        # Boucle pour trouver une case vide
-        while True:
-            x = random.randint(0, long-1)
-            y = random.randint(0, larg-1)
+    # Boucle pour trouver une case vide
+    while True:
+        x = random.randint(0, long-1)
+        y = random.randint(0, larg-1)
 
-            # Attribuer la valeur à la case vide
-            if grid[x][y] == 0:
-                grid[x][y] = number
-                break
+        # Attribuer la valeur à la case vide
+        if grid[x][y] == 0:
+            grid[x][y] = number
+            break
 
-        return grid
+    return grid
 
 # Fonction pour créer la grille avec les cases vides et les nombres
 def create_grid(long,larg):

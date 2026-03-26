@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus visible du jeu
 # author : Natan Humblet
-# Date : 19/03/2026
-# Version : 1.3 MAIN (branche main)
+# Date : 26/03/2026
+# Version : 1.3.1 MAIN (branche main)
 
 # Importation des modules nécessaires
 from tkinter import *
@@ -134,7 +134,6 @@ def reload_display(grid):
                 grid_number = ""
                 # Configurer le texte de la case (label), la couleur  et le centrer
             list_label[line][col].config(text=grid_number, bg=color)
-            list_label[line][col].place(relx=0.5, rely=0.5, anchor="center")
 
     label_score.config(text=f"Score: {core.score}")
 
