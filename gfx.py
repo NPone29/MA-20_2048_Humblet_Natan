@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus visible du jeu
 # author : Natan Humblet
-# Date : 19/03/2026
-# Version : 1.4 DEV
+# Date : 26/03/2026
+# Version : 1.5 DEV
 
 # Importation des modules nécessaires
 from tkinter import *
@@ -75,9 +75,21 @@ def start_game():
     if not last_played_grid:
         grid = core.create_grid(4, 4)
     else:
-        grid = last_played_grid
+        if core.is_game_over(last_played_grid):
+            core.deletegrid()
+            core.reset_win()
+            grid = core.create_grid(4, 4)
+            core.score = 0
+            label_score.config(text=f"Score: {core.score}")
+            core.streak = 0
+            label_streak.config(text=f"Streak: {core.streak}")  
+        else:
+            grid = last_played_grid
     #grid = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 0, 0, 0]]
     print(grid)
+
+    core.best_streak = core.get_best_streak()
+    label_streak_max.config(text=f"Best streak: {core.best_streak}")
 
     list_frame.clear()
     list_label.clear()
@@ -114,8 +126,16 @@ def restart_game():
     core.deletegrid()
     core.reset_win()
 
+    core.save_best_streak(core.streak)
+    core.best_streak = core.get_best_streak()
+    core.reset_streak()
+    core.streak = 0
+
     label_score.config(text=f"Score: {core.score}")
     label_score_max.config(text=f"Best score: {best_score}")
+
+    label_streak.config(text=f"Streak: {core.streak}")
+    label_streak_max.config(text=f"Best streak: {core.best_streak}")
 
     for line in range(len(list_frame)):
         for col in range(len(list_frame[line])):
@@ -139,6 +159,10 @@ def reload_display(grid):
             list_label[line][col].place(relx=0.5, rely=0.5, anchor="center")
 
     label_score.config(text=f"Score: {core.score}")
+    label_streak.config(text=f"Streak: {core.streak}")
+
+    core.best_streak = core.get_best_streak()
+    label_streak_max.config(text=f"Best streak: {core.best_streak}")
 
 def on_close():
     core.save_best_score()
@@ -155,24 +179,30 @@ def on_close():
 
 root = Tk()
 root.title("2048 Game")
-root.geometry("550x650")
+root.geometry("550x665")
 root.resizable(width=0,height=0)
 
-menu_frame = Frame(root, height=100, bg="#493F66")
+menu_frame = Frame(root, height=125, bg="#493F66")
 menu_frame.pack(side=TOP, fill=X)
 
 label_2048 = Label(menu_frame, text="2048 Game", font=("Helvetica", 24), bg="#493F66", fg="white")
-label_2048.place(relx=0.05, rely=0.1)
+label_2048.place(relx=0.35, rely=0.1)
 
 label_score = Label(menu_frame, text=f"Score: {core.score}", font=("Helvetica", 14), bg="#493F66", fg="white")
-label_score.place(relx=0.66, rely=0.2)
+label_score.place(relx=0.66, rely=0.45)
 
 bestscore = core.get_best_score()
 
 label_score_max = Label(menu_frame, text=f"Best score: {bestscore}", font=("Helvetica", 14), bg="#493F66", fg="white")
-label_score_max.place(relx=0.66, rely=0.45)
+label_score_max.place(relx=0.66, rely=0.7)
 
-button_restart = Button(menu_frame, text="Restart", font=("Helvetica", 12), 
+label_streak = Label(menu_frame, text=f"Streak: {core.streak}", font=("Helvetica", 14), bg="#493F66", fg="white")
+label_streak.place(relx=0.05, rely=0.45)
+
+label_streak_max = Label(menu_frame, text=f"Best streak: {core.best_streak}", font=("Helvetica", 14), bg="#493F66", fg="white")
+label_streak_max.place(relx=0.05, rely=0.7)
+
+button_restart = Button(menu_frame, text="Restart", font=("Helvetica", 12),
                         bg="deep sky blue", activebackground="dodger blue", command=restart_game)
 button_restart.place(relx=0.5, rely=0.9, anchor="s")
 
@@ -181,7 +211,7 @@ try:
     base = sys._MEIPASS
 except Exception:
     base = os.path.abspath(os.path.dirname(__file__))
-astro_img = os.path.join(base, "img/astro.jpg")
+astro_img = os.path.join(base, "assets/astro.jpg")
 
 original_image = Image.open(astro_img)
 

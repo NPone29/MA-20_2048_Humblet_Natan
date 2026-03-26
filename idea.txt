@@ -1,2 +1,4 @@
 Idée: 
 A chaque jolie score, une planète se rajoute.
+
+pyinstaller --onefile --noconsole --add-data "assets;assets" app.py

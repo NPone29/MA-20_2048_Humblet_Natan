@@ -1,15 +1,16 @@
 # Function : Script qui démarre le jeu
 # author : Natan Humblet
-# Date : 19/03/2026
-# Version : 1.4 DEV
+# Date : 26/03/2026
+# Version : 1.5 DEV
 
 # Importation des modules nécessaires
 import json
 import os
 
 data = {
-    "bestscore": 0,
-    "win": False
+    "best_score": 0,
+    "win": False,
+    "best_streak": 0
 }
 
 def ensure_settings(path="data.json"):
