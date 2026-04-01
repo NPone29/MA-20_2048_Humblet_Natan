@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus visible du jeu
-# author : Natan Humblet
-# Date : 26/03/2026
-# Version : 1.6 DEV
+# Author : Natan Humblet
+# Date : 01/04/2026
+# Version : 1.7 DEV
 
 # Importation des modules nécessaires
 from tkinter import *
@@ -10,7 +10,9 @@ from PIL import Image, ImageTk
 import os
 import sys
 import core
-import time
+import sounds
+import settings
+import data
 
 # Fonction pour gérer les touches pressées
 def touche_pressee(event):
@@ -39,17 +41,26 @@ def touche_pressee(event):
         return
     
     if core.is_win(grid) and not core.win:
-        core.save_win()
+        data.save_win()
         root.unbind("<KeyPress>")
+
+        sounds.stop_all_sounds()
+        sounds.play_win_sound()
+
         end_frame.place(relx=0.5, rely=0.58, anchor="center")
         end_label.place(relx=0.5, rely=0.5, anchor="center")
         end_label.config(text="You Won!")
         button_continue.place(relx=0.5, rely=0.8, anchor="center")
 
     if core.is_game_over(grid):
-        core.save_best_score()
-        core.reset_win()
+        data.save_best_score()
+        data.reset_win()
         root.unbind("<KeyPress>")
+        if core.game_mode == "timeattack":
+            data.delete_timeattack_time_remaining()
+        
+        sounds.stop_all_sounds()
+        sounds.play_lose_sound()
         end_frame.place(relx=0.5, rely=0.58, anchor="center")
         end_label.place(relx=0.5, rely=0.5, anchor="center")
         end_label.config(text="Game Over")
@@ -61,27 +72,30 @@ def continue_game():
 
 list_frame = []
 list_label = []
+timer_id = None
 
 # Fonction pour démarrer le jeu
 def start_game():
     global grid
 
-    gamemode = core.get_game_mode()
-
-
+    gamemode = data.get_game_mode()
     gap = 20 # space between labels
     x0=45 # horizontal beginning of labels
     y0=50 # vertical beginning of labels
     width=100 # horizontal distance between labels
     height=100 # vertical distance between labels
 
-    last_played_grid = core.getgrid()
+    last_played_grid = data.getgrid()
     if not last_played_grid:
         grid = core.create_grid(4, 4)
     else:
         if core.is_game_over(last_played_grid):
-            core.deletegrid()
-            core.reset_win()
+            data.deletegrid()
+            data.reset_win()
+
+            if gamemode == "timeattack":
+                data.delete_timeattack_time_remaining()
+            
             grid = core.create_grid(4, 4)
             core.score = 0
             label_score.config(text=f"Score: {core.score}")
@@ -92,7 +106,7 @@ def start_game():
     #grid = [[2, 4, 8, 16], [32, 64, 128, 256], [512, 1024, 2048, 4096], [8192, 0, 0, 0]]
     print(grid)
 
-    core.best_streak = core.get_best_streak()
+    core.best_streak = data.get_best_streak()
     label_streak_max.config(text=f"Best streak: {core.best_streak}")
 
     list_frame.clear()
@@ -117,25 +131,36 @@ def start_game():
             row_labels.append(temp_label)
         list_frame.append(row_frames)
         list_label.append(row_labels)
+    
+    sounds.stop_all_sounds()
+    sounds.play_fluffy_song()
 
     if gamemode == "timeattack":
         timeattack_start()
+    else: 
+        frame_timeattack.pack_forget()
 
 # Fonction pour redémarrer le jeu
 def restart_game():
+    global timer_id
+    
+    if timer_id is not None:
+        root.after_cancel(timer_id)
+        timer_id = None
+    data.delete_timeattack_time_remaining()
 
     end_frame.place_forget()
     button_continue.place_forget()
     button_showgame.place_forget()
-    core.save_best_score()
-    best_score = core.get_best_score()
+    data.save_best_score()
+    best_score = data.get_best_score()
     core.score = 0
-    core.deletegrid()
-    core.reset_win()
+    data.deletegrid()
+    data.reset_win()
 
-    core.save_best_streak(core.streak)
-    core.best_streak = core.get_best_streak()
-    core.reset_streak()
+    data.save_best_streak(core.streak)
+    core.best_streak = data.get_best_streak()
+    data.reset_streak()
     core.streak = 0
 
     label_score.config(text=f"Score: {core.score}")
@@ -167,47 +192,83 @@ def reload_display(grid):
     label_score.config(text=f"Score: {core.score}")
     label_streak.config(text=f"Streak: {core.streak}")
 
-    core.best_streak = core.get_best_streak()
+    core.best_streak = data.get_best_streak()
     label_streak_max.config(text=f"Best streak: {core.best_streak}")
 
 def on_close():
-    core.save_best_score()
+    data.save_best_score()
     response = messagebox.askyesnocancel("Save your game?", "Do you want to save your game?")
     if response == True:
-        core.save_game(grid, core.score)
+        data.save_game(grid, core.score)
+        if core.game_mode == "timeattack":
+            data.save_timeattack_time_remaining(core.get_time_remaining())
         root.destroy()
     elif response == False:
-        core.deletegrid()
-        core.reset_win()
+        data.deletegrid()
+        data.reset_win()
         root.destroy()
     else:
         pass
 
 def open_settings():
-    root.destroy()
-    import settings
+    global settings_frame
+    core.pause_timer()
+    settings_frame = settings.run_settings(root)
+    end_frame.place_forget()
+    menu_frame.pack_forget()
+    main_frame.pack_forget()
+    settings_frame.pack(pady=20)
+
+    sounds.stop_all_sounds()
+    sounds.play_settings_song()
+
+def open_main_menu():
+    global timer_id
+    
+    if timer_id is not None:
+        root.after_cancel(timer_id)
+        timer_id = None
+    
+    if settings_frame:
+        settings_frame.pack_forget()
+    menu_frame.pack(side=TOP, fill=X)
+    main_frame.pack(fill=BOTH, expand=True)
 
 def timeattack_start():
-    duration = core.get_timeattack_duration()
+    duration = data.get_timeattack_duration()
     core.start_timer(duration)
     frame_timeattack.pack(side=TOP, fill=X)
     label_timeattack.place(relx=0.5, rely=0.5, anchor="center")
     update_timeattack_label()
 
 def update_timeattack_label():
+    global timer_id
+    
     label_timeattack.config(text=f"Time left: {core.get_time_remaining_str()}")
     elapsed_time = core.get_time_remaining()
+    
+    # Mettre en pause le timer si la partie est perdue
+    if core.is_game_over(grid):
+        core.pause_timer()
+        return
+    
     if elapsed_time <= 0:
-        core.save_best_score()
-        core.reset_win()
+        data.save_best_score()
+        data.reset_win()
         root.unbind("<KeyPress>")
+
+        sounds.stop_30_seconds()
+        sounds.play_win_sound()
+        data.delete_timeattack_time_remaining()
+
         end_frame.place(relx=0.5, rely=0.58, anchor="center")
         end_label.place(relx=0.5, rely=0.5, anchor="center")
-        end_label.config(text="GG, final score: " + str(core.score))
+        end_label.config(text="Game Over, final score: " + str(core.score))
         button_showgame.place(relx=0.5, rely=0.8, anchor="center")
+        timer_id = None
     else:
-        core.time_remain -= 1
-        root.after(1000, update_timeattack_label)
+        core.update_time()
+        timer_id = root.after(1000, update_timeattack_label)
 
 root = Tk()
 root.title("2048 Game")
@@ -217,13 +278,16 @@ root.resizable(width=0,height=0)
 menu_frame = Frame(root, height=125, bg="#493F66")
 menu_frame.pack(side=TOP, fill=X)
 
+label_gamemode = Label(menu_frame, text=f"Gamemode: {'Classic' if core.game_mode == 'classic' else 'Time Attack'}", font=("Helvetica", 10), bg="#493F66", fg="white")
+label_gamemode.place(relx=0.0, rely=0.0)
+
 label_2048 = Label(menu_frame, text="2048 Game", font=("Helvetica", 24), bg="#493F66", fg="white")
 label_2048.place(relx=0.35, rely=0.1)
 
 label_score = Label(menu_frame, text=f"Score: {core.score}", font=("Helvetica", 14), bg="#493F66", fg="white")
 label_score.place(relx=0.66, rely=0.45)
 
-bestscore = core.get_best_score()
+bestscore = data.get_best_score()
 
 label_score_max = Label(menu_frame, text=f"Best score: {bestscore}", font=("Helvetica", 14), bg="#493F66", fg="white")
 label_score_max.place(relx=0.66, rely=0.7)
@@ -278,8 +342,8 @@ button_showgame = Button(end_frame, text="Show Game", font=("Helvetica", 12), bg
 frame_timeattack = Frame(main_frame, height=45, bg="mediumpurple2")
 label_timeattack = Label(frame_timeattack, text=f"Time left: 0", font=("Helvetica", 14), bg="mediumpurple2", fg="white")
 
-start_game()
-
-root.bind("<KeyPress>", touche_pressee)
-root.protocol("WM_DELETE_WINDOW", on_close)
-root.mainloop()
+def run_gfx():
+    start_game()
+    root.bind("<KeyPress>", touche_pressee)
+    root.protocol("WM_DELETE_WINDOW", on_close)
+    root.mainloop()

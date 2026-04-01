@@ -2,3 +2,11 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+__.idea__/
+*.idea/*
+*.iml
+
+__.vscode__/
+*.vscode/*
+

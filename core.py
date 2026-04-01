@@ -1,12 +1,12 @@
 # Function : Script qui gère tout les processus invisible du jeu
-# author : Natan Humblet
-# Date : 26/03/2026
-# Version : 1.6 DEV
+# Author : Natan Humblet
+# Date : 01/04/2026
+# Version : 1.7 DEV
 
 # Importation des modules nécessaires
 import random
-import json
-import time
+import data
+import sounds
 
 # Dictionnaire avec toutes les couleurs des nombres
 color = {
@@ -166,9 +166,10 @@ class move:
             if new_streak and calculate_streak:
                 streak += 1
             elif not new_streak and calculate_streak:
-                save_best_streak(streak)
-                reset_streak()
+                data.save_best_streak(streak)
+                data.reset_streak()
                 streak = 0
+            sounds.play_move_sound()
 
         return grid
 
@@ -192,9 +193,10 @@ class move:
             if new_streak and calculate_streak:
                 streak += 1
             elif not new_streak and calculate_streak:
-                save_best_streak(streak)
-                reset_streak()
+                data.save_best_streak(streak)
+                data.reset_streak()
                 streak = 0
+            sounds.play_move_sound()
 
         return grid
 
@@ -221,9 +223,10 @@ class move:
             if new_streak and calculate_streak:
                 streak += 1
             elif not new_streak and calculate_streak:
-                save_best_streak(streak)
-                reset_streak()
+                data.save_best_streak(streak)
+                data.reset_streak()
                 streak = 0
+            sounds.play_move_sound()
 
         return new_grid
 
@@ -251,126 +254,36 @@ class move:
             if new_streak and calculate_streak:
                 streak += 1
             elif not new_streak and calculate_streak:
-                save_best_streak(streak)
-                reset_streak()
+                data.save_best_streak(streak)
+                data.reset_streak()
                 streak = 0
+            sounds.play_move_sound()
 
         return new_grid
 
-def save_best_score():
-        with open("data.json", "r") as f:
-            data = json.load(f)
-        if score > data["best_score"]:
-            data["best_score"] = score
-        with open("data.json", "w") as f:
-            json.dump(data, f)
-
-
-def get_best_score():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    return data["best_score"]
-
-def save_game(grid, score):
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    data["grid"] = grid
-    data["score"] = score
-    data["streak"] = streak
-    with open("data.json", "w") as f:
-        json.dump(data, f)
-
-def getgrid():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    return data.get("grid", None)
-
-def getscore():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    return data.get("score", 0)
-
-
-def deletegrid():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    if "grid" in data:
-        del data["grid"]
-    if "score" in data:
-        del data["score"]
-    if "streak" in data:
-        del data["streak"]
-    with open("data.json", "w") as f:
-        json.dump(data, f)
-
-def save_win():
-    global win
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    data["win"] = True
-    with open("data.json", "w") as f:
-        json.dump(data, f)
-    win = True
-
-def get_win():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    return data.get("win", False)
-
-def reset_win():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    data["win"] = False
-    with open("data.json", "w") as f:
-        json.dump(data, f)
-
-def get_streak():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    return data.get("streak", 0)
-
-def reset_streak():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    if "streak" in data:
-        del data["streak"]
-    with open("data.json", "w") as f:
-        json.dump(data, f)
-
-def get_best_streak():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    return data.get("best_streak", 0)
-
-def save_best_streak(streak):
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    if streak > data.get("best_streak", 0):
-        data["best_streak"] = streak
-    with open("data.json", "w") as f:
-        json.dump(data, f)
-
-def get_game_mode():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    return data.get("game_mode", "classic")
-
-def get_timeattack_duration():
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    return data.get("timeattack_duration", 120)
-
-win = get_win()
-score = getscore()
-streak = get_streak()
-best_streak = get_best_streak()
-game_mode = get_game_mode()
+win = data.get_win()
+score = data.getscore()
+streak = data.get_streak()
+best_streak = data.get_best_streak()
+game_mode = data.get_game_mode()
 
 time_remain = 0
+time_paused = False
+time_30_started = False
 
 def start_timer(seconds):
-    global time_remain
+    global time_remain, time_paused, time_30_started
     time_remain = seconds
+    time_paused = False
+    time_30_started = False
+
+def pause_timer():
+    global time_paused
+    time_paused = True
+
+def resume_timer():
+    global time_paused
+    time_paused = False
 
 def get_time_remaining():
     global time_remain
@@ -380,6 +293,18 @@ def get_time_remaining_str():
     global time_remain
     mins, secs = divmod(time_remain, 60)
     return f"{mins:02d}:{secs:02d}"
+
+def update_time():
+    global time_remain, time_30_started
+
+    if time_remain <= 30 and not time_30_started:
+        sounds.stop_song()
+        sounds.play_30_seconds()
+        time_30_started = True
+    
+    if not time_paused:
+      time_remain -= 1
+
 
 
 #print(move.move_down([[2, 0, 2, 0], [4, 4, 4, 0], [0, 2, 2, 4], [2, 2, 0, 2]]))

@@ -1,7 +1,7 @@
 # Function : Script qui démarre le jeu
-# author : Natan Humblet
-# Date : 26/03/2026
-# Version : 1.6 DEV
+# Author : Natan Humblet
+# Date : 01/04/2026
+# Version : 1.7 DEV
 
 # Importation des modules nécessaires
 import json
@@ -12,6 +12,9 @@ data = {
     "win": False,
     "best_streak": 0,
     "game_mode": "classic",  # "classic" ou "time_attack"
+    "volume": 0.5,  # Valeur de volume par défaut (50%)
+    "sounds": True,  # Sons activés par défaut
+    "music": True  # Musique activée par défaut
 }
 
 def ensure_settings(path="data.json"):
@@ -31,5 +34,8 @@ try:
     if __name__ == "__main__":
         ensure_settings()
     import gfx
+    import sounds
+    sounds.load_sounds()  # Charger tous les sons au démarrage pour éviter les lags
+    gfx.run_gfx()
 except Exception as e:
     print("The game closed successfully or crashed:", e)
