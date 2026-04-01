@@ -1,14 +1,13 @@
 # Function : Script qui gère tout les processus visible du jeu
 # Author : Natan Humblet
 # Date : 01/04/2026
-# Version : 1.7 DEV
+# Version : 1.7.1 DEV
 
 # Importation des modules nécessaires
 from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
-import sys
 import core
 import sounds
 import settings
@@ -272,6 +271,10 @@ def update_timeattack_label():
 
 root = Tk()
 root.title("2048 Game")
+icon_img = Image.open("assets/icon.ico")
+icon_img = icon_img.resize((32, 32), Image.LANCZOS)  # Redimensionner pour l'icône
+icon_photo = ImageTk.PhotoImage(icon_img)
+root.iconphoto(True, icon_photo)
 root.geometry("550x665")
 root.resizable(width=0,height=0)
 
@@ -303,11 +306,7 @@ button_restart = Button(menu_frame, text="Restart", font=("Helvetica", 12),
 button_restart.place(relx=0.5, rely=0.9, anchor="s")
 
 # Chargement de l'image de fond (ciel étoilé)
-try:
-    base = sys._MEIPASS
-except Exception:
-    base = os.path.abspath(os.path.dirname(__file__))
-astro_img = os.path.join(base, "assets/astro.jpg")
+astro_img = os.path.join(core.resource_path("assets/astro.jpg"))
 
 original_image = Image.open(astro_img)
 
@@ -326,7 +325,7 @@ canvas.place(relx=0, rely=0, relwidth=1, relheight=1)
 canvas.create_image(0, 0, image=bg, anchor="nw")
 main_frame._bg_image = bg
 
-settings_img = Image.open(os.path.join(base, "assets/settings.png"))
+settings_img = Image.open(core.resource_path("assets/settings.png"))
 settings_img = settings_img.resize((20, 20), Image.LANCZOS)
 settings_photo = ImageTk.PhotoImage(settings_img)
 

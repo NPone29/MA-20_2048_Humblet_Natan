@@ -1,12 +1,14 @@
 # Function : Script qui gère tout les processus invisible du jeu
 # Author : Natan Humblet
 # Date : 01/04/2026
-# Version : 1.7 DEV
+# Version : 1.7.1 DEV
 
 # Importation des modules nécessaires
 import random
 import data
 import sounds
+import os
+import sys
 
 # Dictionnaire avec toutes les couleurs des nombres
 color = {
@@ -304,6 +306,18 @@ def update_time():
     
     if not time_paused:
       time_remain -= 1
+
+def resource_path(rel_path):
+    """
+    Retourne le chemin absolu utilisable à l'exécution.
+    Fonctionne normalement et dans les bundles PyInstaller (--onefile) via sys._MEIPASS.
+    """
+    # Cette fonction a été repris de mon projet ancien projet MA-24
+    try:
+        base = sys._MEIPASS
+    except Exception:
+        base = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(base, rel_path)
 
 
 
