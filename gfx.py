@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus visible du jeu
 # Author : Natan Humblet
 # Date : 01/04/2026
-# Version : 1.7.1 DEV
+# Version : 1.7.2 DEV
 
 # Importation des modules nécessaires
 from tkinter import *
@@ -77,7 +77,8 @@ timer_id = None
 def start_game():
     global grid
 
-    gamemode = data.get_game_mode()
+    core.game_mode = data.get_game_mode()
+    label_gamemode.config(text=f"Gamemode: {'Classic' if core.game_mode == 'classic' else 'Time Attack'}")
     gap = 20 # space between labels
     x0=45 # horizontal beginning of labels
     y0=50 # vertical beginning of labels
@@ -92,7 +93,7 @@ def start_game():
             data.deletegrid()
             data.reset_win()
 
-            if gamemode == "timeattack":
+            if core.game_mode == "timeattack":
                 data.delete_timeattack_time_remaining()
             
             grid = core.create_grid(4, 4)
@@ -134,7 +135,7 @@ def start_game():
     sounds.stop_all_sounds()
     sounds.play_fluffy_song()
 
-    if gamemode == "timeattack":
+    if core.game_mode == "timeattack":
         timeattack_start()
     else: 
         frame_timeattack.pack_forget()

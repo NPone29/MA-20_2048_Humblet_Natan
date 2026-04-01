@@ -1,7 +1,7 @@
 # Function : Script qui gère les paramètres du jeu
 # Author : Natan Humblet
 # Date : 01/04/2026
-# Version : 1.7 DEV
+# Version : 1.7.2 DEV
 
 from tkinter import *
 from tkinter import messagebox
@@ -33,6 +33,18 @@ def run_settings(parent=None):
             frame_settings.forget()
             gfx.open_main_menu()
             gfx.restart_game()
+    
+    def reset_progress():
+        if messagebox.askyesno("Reset progress", "Are you sure you want to reset your progress? This action cannot be undone."):
+            data.reset_progress()
+            sounds.stop_song()
+            sounds.load_sounds()
+            frame_settings.forget()
+            gfx.open_main_menu()
+            gfx.restart_game()
+            messagebox.showinfo("Progress reset", "Your progress has been reset.")
+        else:
+            messagebox.showinfo("Progress reset", "Your progress has not been reset.")
 
     def settings_cancel():
         frame_settings.forget()
@@ -127,9 +139,9 @@ def run_settings(parent=None):
     button_cancel.pack(side=LEFT, padx=10)
 
     button_validate = Button(frame_validate, text="Validate", font=("Helvetica", 12), bg="lightblue", activebackground="lightgreen", command=valide)
-    button_validate.pack(pady=20)
+    button_validate.pack(side=LEFT, padx=10)
 
-    button_reset = Button(frame_validate, text="Reset Progress", font=("Helvetica", 12), bg="lightcoral", activebackground="red", command=lambda: core.reset_progress(frame_settings))
-    button_reset.pack(side=RIGHT, padx=10)
+    button_reset = Button(frame_validate, text="Reset Progress", font=("Helvetica", 12), bg="lightcoral", activebackground="red", command=reset_progress)
+    button_reset.pack(side=LEFT, padx=10)
 
     return frame_settings

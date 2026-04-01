@@ -1,7 +1,7 @@
 # Function : Script qui gère les données du jeu (json)
 # Author : Natan Humblet
 # Date : 01/04/2026
-# Version : 1.7 DEV
+# Version : 1.7.2 DEV
 
 import json
 import core
@@ -150,5 +150,20 @@ def save_settings(game_mode, timeattack_duration, sounds_enabled, music_enabled,
     data["sounds"] = sounds_enabled
     data["music"] = music_enabled
     data["volume"] = volume
+    with open("data.json", "w") as f:
+        json.dump(data, f)
+
+def reset_progress():
+    with open("data.json", "r") as f:
+        data = json.load(f)
+    data["best_score"] = 0
+    data["win"] = False
+    data["best_streak"] = 0
+    if "grid" in data:
+        del data["grid"]
+    if "score" in data:
+        del data["score"]
+    if "streak" in data:
+        del data["streak"]
     with open("data.json", "w") as f:
         json.dump(data, f)
