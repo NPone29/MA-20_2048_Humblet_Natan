@@ -1,7 +1,7 @@
 # Function : Script qui gère les données du jeu (json)
 # Author : Natan Humblet
 # Date : 02/04/2026
-# Version : 1.0 RELEASE
+# Version : 1.0.1 RELEASE
 
 # Importation des modules nécessaires
 import json
@@ -65,7 +65,6 @@ def save_win():
     data["win"] = True
     with open("data.json", "w") as f:
         json.dump(data, f)
-    win = True
 
 # Fonction pour récupérer l'état de la victoire
 def get_win():

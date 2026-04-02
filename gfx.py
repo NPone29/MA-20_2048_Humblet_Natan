@@ -1,7 +1,7 @@
 # Function : Script qui gère tout les processus visible du jeu
 # Author : Natan Humblet
 # Date : 02/04/2026
-# Version : 1.0 RELEASE
+# Version : 1.0.1 RELEASE
 
 # Importation des modules nécessaires
 from tkinter import *
@@ -43,11 +43,11 @@ def touche_pressee(event):
     if core.is_win(grid) and not core.win:
         # Sauvegarder que le joueur a gagné
         data.save_win()
+        core.win = True
         # Désactiver l'événement keypress et afficher le message de victoire
         root.unbind("<KeyPress>")
 
         # Jouer le son de victoire
-        sounds.stop_all_sounds()
         sounds.play_win_sound()
 
         end_frame.place(relx=0.5, rely=0.58, anchor="center")
@@ -60,6 +60,7 @@ def touche_pressee(event):
         # Sauvergarde les données du joueur
         data.save_best_score()
         data.reset_win()
+        core.win = False
         # Désactiver l'événement keypress et afficher le message de fin de jeu
         root.unbind("<KeyPress>")
         if core.game_mode == "timeattack":
@@ -102,6 +103,7 @@ def start_game():
         if core.is_game_over(last_played_grid):
             data.deletegrid()
             data.reset_win()
+            core.win = False
 
             if core.game_mode == "timeattack":
                 data.delete_timeattack_time_remaining()
@@ -172,6 +174,7 @@ def restart_game():
     core.score = 0
     data.deletegrid()
     data.reset_win()
+    core.win = False
 
     data.save_best_streak(core.streak)
     core.best_streak = data.get_best_streak()
@@ -228,7 +231,7 @@ def on_close():
     # reset la grille enregistrée, la victoire et quitter
     elif response == False:
         data.deletegrid()
-        data.reset_win()
+        data.reset_win()        
         root.destroy()
     # Annuler la fermeture de la fenêtre
     else:
@@ -294,6 +297,7 @@ def update_timeattack_label():
     if elapsed_time <= 0:
         data.save_best_score()
         data.reset_win()
+        core.win = False
         # Arrêter l'événement de bouger
         root.unbind("<KeyPress>")
 
