@@ -28,6 +28,17 @@ color = {
     8192: { "color": "#FFFFFF"}
 }
 
+# Fonction pour récupérer la couleur en fonction de la valeur
+def get_color(value):
+    """Retourne la couleur pour une valeur donnée. 
+    Si la valeur > 8192, retourne la couleur de 8192."""
+    if value in color:
+        return color[value]["color"]
+    elif value > 8192:
+        return color[8192]["color"]
+    else:
+        return color[0]["color"]  # Couleur par défaut pour 0
+
 # Fonction pour faire apparaître une nouvelle case
 def spawn_new_case(grid, long, larg):
 

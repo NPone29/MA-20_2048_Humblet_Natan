@@ -128,7 +128,7 @@ def start_game():
         row_labels = []
         for col in range(len(grid[line])):
             value = grid[line][col]
-            color = core.color[value]["color"]
+            color = core.get_color(value)
 
             number_frame = Frame(main_frame, width=10, height=5, borderwidth=1, relief="solid", bg=color)
             number_frame.place(x=x0 + (width + gap) * col, y=y0 + (height + gap) * line, width=width, height=height)
@@ -200,7 +200,7 @@ def restart_game():
 def reload_display(grid):
     for line in range(len(grid)):
         for col in range(len(grid[line])):
-            color = core.color[grid[line][col]]["color"]
+            color = core.get_color(grid[line][col])
             # Configurer la couleur de fond de la case (frame)
             list_frame[line][col].config(bg=color)
             grid_number = grid[line][col]
@@ -319,7 +319,7 @@ def update_timeattack_label():
 
 root = Tk()
 root.title("2048 Game")
-icon_img = Image.open("assets/icon.ico")
+icon_img = Image.open(core.resource_path("assets/icon.ico"))
 icon_img = icon_img.resize((32, 32), Image.LANCZOS)  # Redimensionner pour l'icône
 icon_photo = ImageTk.PhotoImage(icon_img)
 root.iconphoto(True, icon_photo)

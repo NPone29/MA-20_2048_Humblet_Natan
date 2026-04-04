@@ -7,22 +7,23 @@
 import pygame
 import os
 import data
+import core
 
 # Initialisation de pygame mixer
 pygame.mixer.init()
 
-# Chemins des fichiers audio
-sound_30_seconds = "./assets/sounds/30_seconds.mp3"
-music_30_seconds = "./assets/sounds/30_seconds_music.mp3"
-fluffy_song_path = "./assets/sounds/fluffy_song.mp3"
-win_sound_path = "./assets/sounds/winner_sound.mp3"
-lose_sound_path = "./assets/sounds/lose_sound.mp3"
-settings_song_path = "./assets/sounds/settings_song.mp3"
-move_sound_path = "./assets/sounds/move_sound.mp3"
-
 # Fonction pour charger les sons
 def load_sounds():
     global sound_30, music_30, fluffy_song, win_sound, lose_sound, song_channel, sound_30_channel, music_30_channel, win_lose_channel, settings_song, move_sound, move_channel
+
+    # Chemins des fichiers audio
+    sound_30_seconds = core.resource_path("./assets/sounds/30_seconds.mp3")
+    music_30_seconds = core.resource_path("./assets/sounds/30_seconds_music.mp3")
+    fluffy_song_path = core.resource_path("./assets/sounds/fluffy_song.mp3")
+    win_sound_path = core.resource_path("./assets/sounds/winner_sound.mp3")
+    lose_sound_path = core.resource_path("./assets/sounds/lose_sound.mp3")
+    settings_song_path = core.resource_path("./assets/sounds/settings_song.mp3")
+    move_sound_path = core.resource_path("./assets/sounds/move_sound.mp3")
 
     # Valeur par défaut : None
     sound_30, music_30, fluffy_song, win_sound, lose_sound, settings_song, move_sound = None, None, None, None, None, None, None
