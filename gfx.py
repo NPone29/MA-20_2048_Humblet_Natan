@@ -378,6 +378,8 @@ settings_img = Image.open(core.resource_path("assets/settings.png"))
 settings_img = settings_img.resize((20, 20), Image.LANCZOS)
 settings_photo = ImageTk.PhotoImage(settings_img)
 
+canvas.create_text(475, 520, text="By NPone29", font=("Helvetica", 10), fill="white", anchor="nw")
+
 button_settings = Button(menu_frame, image=settings_photo, bg="light gray", command=open_settings)
 button_settings.place(relx=0.95, rely=0)
 
